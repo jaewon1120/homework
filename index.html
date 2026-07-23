@@ -48,45 +48,41 @@
             <th>연속</th>
           </tr>
         </thead>
-        <!-- 자바스크립트로 팀 데이터가 자동 입력될 본문 영역 -->
         <tbody id="kboTableBody"></tbody>
       </table>
     </div>
 
     <script>
-      // 교수님 GitHub의 JSON 데이터 주소
       const jsonUrl = "https://prof-jwchi.github.io/kopo-front2026/Json/baseball.json";
 
-      // fetch API 로 JSON 파일 가져오기
       fetch(jsonUrl)
         .then((response) => response.json())
         .then((data) => {
           const tableBody = document.getElementById("kboTableBody");
           let tableRowsHtml = "";
 
-          // baseball.json 의 실제 필드명에 맞게 정확히 매핑
           data.list.forEach((team) => {
             const logoUrl = team.imageUrl || "";
 
+            // team.rank 객체 내부의 실제 키값으로 바르게 매핑
             tableRowsHtml += `
               <tr>
-                <td><strong>${team.rank}</strong></td>
+                <td><strong>${team.rank.rank}</strong></td>
                 <td class="text-start">
                   ${logoUrl ? `<img src="${logoUrl}" alt="${team.name}" class="team-logo">` : ''}
                   <strong>${team.name}</strong>
                 </td>
-                <td>${team.game}</td>
-                <td>${team.won}</td>
-                <td>${team.drawn}</td>
-                <td>${team.lost}</td>
-                <td class="winning-rate">${team.winningRate}</td>
-                <td>${team.gameBehind}</td>
-                <td>${team.result}</td>
+                <td>${team.rank.gameCount}</td>
+                <td>${team.rank.won}</td>
+                <td>${team.rank.drawn}</td>
+                <td>${team.rank.lost}</td>
+                <td class="winning-rate">${team.rank.winningRate}</td>
+                <td>${team.rank.gb}</td>
+                <td>${team.rank.continueStr}</td>
               </tr>
             `;
           });
 
-          // 생성된 HTML을 테이블 본문에 추가
           tableBody.innerHTML = tableRowsHtml;
         })
         .catch((error) => {
