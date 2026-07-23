@@ -56,12 +56,12 @@
       const jsonUrl = "https://prof-jwchi.github.io/kopo-front2026/Json/baseball.json";
 
       /**
-       * 객체 내에서 여러 후보 키(candidate keys)를 순차적으로 검색하여 존재하되 객체가 아닌 '단일 값(기본형)'을 반환하는 안전 탐색 함수
+       * team 바깥쪽과 team.rank 안쪽 객체를 모두 검사하여 진짜 값만 반환하는 안전 탐색 함수
        */
       function getValidValue(item, candidateKeys) {
         if (!item) return '-';
 
-        // 1. item 객체 바로 아래 검색 (단, 객체/배열 형태가 아닌 일반 값만 추출)
+        // 1. item 객체 최상위 단일 값 탐색 (객체 형태는 제외)
         for (const key of candidateKeys) {
           const val = item[key];
           if (val !== undefined && val !== null && typeof val !== 'object') {
@@ -69,7 +69,7 @@
           }
         }
 
-        // 2. item.rank 객체 내부 검색 (rank가 객체인 경우)
+        // 2. item.rank 객체 내부 값 탐색
         if (item.rank && typeof item.rank === 'object') {
           for (const key of candidateKeys) {
             const val = item.rank[key];
@@ -89,7 +89,7 @@
           let tableRowsHtml = "";
 
           data.list.forEach((team) => {
-            // 각 속성별 다각도 유연 탐색 (객체 자체 반환 방지 및 순위/경기수/연속 등 정확히 추출)
+            // 각 필드별 맞춤 키값 자동 탐색
             const rankVal = getValidValue(team, ['rank', 'rankNo', 'r']);
             const nameVal = getValidValue(team, ['name', 'teamName', 'shortName']);
             const logoUrl = getValidValue(team, ['imageUrl', 'logo', 'emblem']);
