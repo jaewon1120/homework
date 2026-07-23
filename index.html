@@ -55,6 +55,33 @@
     <script>
       const jsonUrl = "https://prof-jwchi.github.io/kopo-front2026/Json/baseball.json";
 
+      /**
+       * 객체 내에서 여러 후보 키(candidate keys)를 순차적으로 검색하여 존재하되 객체가 아닌 '단일 값(기본형)'을 반환하는 안전 탐색 함수
+       */
+      function getValidValue(item, candidateKeys) {
+        if (!item) return '-';
+
+        // 1. item 객체 바로 아래 검색 (단, 객체/배열 형태가 아닌 일반 값만 추출)
+        for (const key of candidateKeys) {
+          const val = item[key];
+          if (val !== undefined && val !== null && typeof val !== 'object') {
+            return val;
+          }
+        }
+
+        // 2. item.rank 객체 내부 검색 (rank가 객체인 경우)
+        if (item.rank && typeof item.rank === 'object') {
+          for (const key of candidateKeys) {
+            const val = item.rank[key];
+            if (val !== undefined && val !== null && typeof val !== 'object') {
+              return val;
+            }
+          }
+        }
+
+        return '-';
+      }
+
       fetch(jsonUrl)
         .then((response) => response.json())
         .then((data) => {
@@ -62,23 +89,32 @@
           let tableRowsHtml = "";
 
           data.list.forEach((team) => {
-            const logoUrl = team.imageUrl || "";
+            // 각 속성별 다각도 유연 탐색 (객체 자체 반환 방지 및 순위/경기수/연속 등 정확히 추출)
+            const rankVal = getValidValue(team, ['rank', 'rankNo', 'r']);
+            const nameVal = getValidValue(team, ['name', 'teamName', 'shortName']);
+            const logoUrl = getValidValue(team, ['imageUrl', 'logo', 'emblem']);
+            const gameVal = getValidValue(team, ['gameCount', 'game', 'games', 'playCount', 'g']);
+            const wonVal = getValidValue(team, ['won', 'win', 'w', 'v']);
+            const drawnVal = getValidValue(team, ['drawn', 'draw', 'd', 'tie']);
+            const lostVal = getValidValue(team, ['lost', 'loss', 'l', 'defeat']);
+            const rateVal = getValidValue(team, ['winningRate', 'winRate', 'wra', 'rate', 'wpct']);
+            const gbVal = getValidValue(team, ['gb', 'gameBehind', 'behind', 'gGap']);
+            const streakVal = getValidValue(team, ['continueStr', 'result', 'streak', 'continuation', 'state']);
 
-            // team.rank 객체 내부의 실제 키값으로 바르게 매핑
             tableRowsHtml += `
               <tr>
-                <td><strong>${team.rank.rank}</strong></td>
+                <td><strong>${rankVal}</strong></td>
                 <td class="text-start">
-                  ${logoUrl ? `<img src="${logoUrl}" alt="${team.name}" class="team-logo">` : ''}
-                  <strong>${team.name}</strong>
+                  ${logoUrl && logoUrl !== '-' ? `<img src="${logoUrl}" alt="${nameVal}" class="team-logo">` : ''}
+                  <strong>${nameVal}</strong>
                 </td>
-                <td>${team.rank.gameCount}</td>
-                <td>${team.rank.won}</td>
-                <td>${team.rank.drawn}</td>
-                <td>${team.rank.lost}</td>
-                <td class="winning-rate">${team.rank.winningRate}</td>
-                <td>${team.rank.gb}</td>
-                <td>${team.rank.continueStr}</td>
+                <td>${gameVal}</td>
+                <td>${wonVal}</td>
+                <td>${drawnVal}</td>
+                <td>${lostVal}</td>
+                <td class="winning-rate">${rateVal}</td>
+                <td>${gbVal}</td>
+                <td>${streakVal}</td>
               </tr>
             `;
           });
@@ -86,7 +122,7 @@
           tableBody.innerHTML = tableRowsHtml;
         })
         .catch((error) => {
-          console.error("JSON 파일을 가져오는 데 실패했습니다.", error);
+          console.error("JSON 데이터를 가져오는 데 실패했습니다.", error);
         });
     </script>
 
