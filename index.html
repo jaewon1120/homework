@@ -55,9 +55,32 @@
     <script>
       const jsonUrl = "https://prof-jwchi.github.io/kopo-front2026/Json/baseball.json";
 
+      function getValidValue(item, candidateKeys) {
+        if (!item) return '-';
+
+        // 1. item 객체 최상위 단일 값 탐색 (객체 형태는 제외)
+        for (const key of candidateKeys) {
+          const val = item[key];
+          if (val !== undefined && val !== null && typeof val !== 'object') {
+            return val;
+          }
+        }
+
+        // 2. item.rank 객체 내부 값 탐색
+        if (item.rank && typeof item.rank === 'object') {
+          for (const key of candidateKeys) {
+            const val = item.rank[key];
+            if (val !== undefined && val !== null && typeof val !== 'object') {
+              return val;
+            }
+          }
+        }
+
+        return '-';
+      }
+
       fetch(jsonUrl)
         .then((response) => {response.json()})
-        
         .then((data) => {
           const tableBody = document.getElementById("kboTableBody");
           let tableRowsHtml = "";
