@@ -55,6 +55,9 @@
     <script>
       const jsonUrl = "https://prof-jwchi.github.io/kopo-front2026/Json/baseball.json";
 
+      /**
+       * team 바깥쪽과 team.rank 안쪽 객체를 모두 검사하여 진짜 값만 반환하는 안전 탐색 함수
+       */
       function getValidValue(item, candidateKeys) {
         if (!item) return '-';
 
@@ -80,7 +83,7 @@
       }
 
       fetch(jsonUrl)
-        .then((response) => {response.json()})
+        .then((response) => response.json())
         .then((data) => {
           const tableBody = document.getElementById("kboTableBody");
           let tableRowsHtml = "";
